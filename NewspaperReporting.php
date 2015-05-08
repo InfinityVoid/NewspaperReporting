@@ -8,6 +8,30 @@
 
 namespace Piwik\Plugins\NewspaperReporting;
 
+use Piwik\Common;
+
 class NewspaperReporting extends \Piwik\Plugin
 {
+    public function getListHooksRegistered()
+    {
+        return array(
+            'Tracker.newVisitorInformation' => 'processNewVisitor',
+            'Tracker.existingVisitInformation' => 'processExistingVisitInformation',
+        );
+    }
+
+
+    public function processNewVisitor(&$valuesToUpdate, $visitorInfo)
+    {
+        var_dump($valuesToUpdate);
+        var_dump($visitorInfo);
+    }
+
+    public function processExistingVisitInformation(&$valuesToUpdate, $visitorInfo)
+    {
+        var_dump($valuesToUpdate);
+        var_dump($visitorInfo);
+        $articleId = Common::getRequestVar('ArticleId');
+        var_dump($articleId);
+    }
 }
