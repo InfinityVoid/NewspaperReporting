@@ -30,12 +30,7 @@ class NewspaperReporting extends \Piwik\Plugin
 
     public function processExistingVisitInformation(&$valuesToUpdate, $visitorInfo)
     {
-        $valuesToUpdate = $this->processUrlVars($valuesToUpdate);
-    }
-
-    public function processAction($trackerAction, $visitAction)
-    {
-        var_dump($visitAction);
+//        $valuesToUpdate = $this->processUrlVars($valuesToUpdate);
     }
 
     private function processUrlVars($valuesToUpdate)
@@ -45,13 +40,9 @@ class NewspaperReporting extends \Piwik\Plugin
         $urlParts = parse_url($url);
         $vars = [];
         parse_str($urlParts['query'], $vars);
-        if (isset($vars['ArticleId'])) {
-            $valuesToUpdate['custom_var_k3'] = 'ArticleId';
-            $valuesToUpdate['custom_var_v3'] = $vars['ArticleId'];
-        }
         if (isset($vars['PaywallPlan'])) {
-            $valuesToUpdate['custom_var_k4'] = 'PaywallPlan';
-            $valuesToUpdate['custom_var_v4'] = $vars['PaywallPlan'];
+            $valuesToUpdate['custom_var_k3'] = 'PaywallPlanFromUrl';
+            $valuesToUpdate['custom_var_v3'] = $vars['PaywallPlan'];
         }
         return $valuesToUpdate;
     }

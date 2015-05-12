@@ -1,0 +1,9 @@
+{% extends 'dashboard.twig' %}
+
+{% block content %}
+
+    {%  for row in rows %}
+        {{ row.label }} - Visits: {{ row.nb_visits }} - Actions: {{ row.nb_actions }} <br>
+    {% endfor %}
+
+{% endblock %}

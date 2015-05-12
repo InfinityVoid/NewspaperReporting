@@ -19,9 +19,9 @@ use Piwik\Archive;
 class API extends \Piwik\Plugin\API
 {
 
-    protected function getDataTable($idSite, $period, $date, $segment, $expanded, $flat, $idSubtable)
+    protected function getDataTable($name, $idSite, $period, $date, $segment, $expanded, $flat, $idSubtable)
     {
-        $dataTable = Archive::createDataTableFromArchive(Archiver::NEWSPAPERREPORTING_ARCHIVE_RECORD, $idSite, $period, $date, $segment, $expanded, $flat, $idSubtable);
+        $dataTable = Archive::createDataTableFromArchive($name, $idSite, $period, $date, $segment, $expanded, $flat, $idSubtable);
         $dataTable->queueFilter('ColumnDelete', 'nb_uniq_visitors');
 
         if ($flat) {
@@ -42,7 +42,27 @@ class API extends \Piwik\Plugin\API
      */
     public function getNewspaperReport($idSite, $period, $date, $segment = false)
     {
-        $dataTable = $this->getDataTable($idSite, $period, $date, $segment, $expanded, $flat, $idSubtable = null);
+        $flat = false;
+        $expanded = false;
+        $dataTable = $this->getDataTable(Archiver::NEWSPAPERREPORTING_PAYWALL_ARCHIVE_RECORD, $idSite, $period, $date, $segment, $expanded, $flat, $idSubtable = null);
+        $dataTable->applyQueuedFilters();
+
+        return $dataTable;
+    }
+
+    /**
+     * Another example method that returns a data table.
+     * @param int    $idSite
+     * @param string $period
+     * @param string $date
+     * @param bool|string $segment
+     * @return DataTable
+     */
+    public function getArticleReport($idSite, $period, $date, $segment = false)
+    {
+        $flat = false;
+        $expanded = false;
+        $dataTable = $this->getDataTable(Archiver::NEWSPAPERREPORTING_ARTICLE_ARCHIVE_RECORD, $idSite, $period, $date, $segment, $expanded, $flat, $idSubtable = null);
         $dataTable->applyQueuedFilters();
 
         return $dataTable;

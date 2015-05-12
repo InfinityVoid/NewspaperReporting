@@ -36,12 +36,18 @@ class Archiver extends \Piwik\Plugin\Archiver
      *
      * This is only an example record name, so feel free to change it to suit your needs.
      */
-    const NEWSPAPERREPORTING_ARCHIVE_RECORD = "NewspaperReporting_archive_record";
+    const NEWSPAPERREPORTING_PAYWALL_ARCHIVE_RECORD = "NewspaperReporting_paywall_archive_record";
+    const NEWSPAPERREPORTING_ARTICLE_ARCHIVE_RECORD = "NewspaperReporting_article_archive_record";
 
     /**
      * @var DataArray
      */
-    protected $dataArray;
+    protected $paywallDataArray;
+    /**
+     * @var DataArray
+     */
+    protected $articleDataArray;
+
     protected $maximumRowsInDataTableLevelZero;
     protected $maximumRowsInSubDataTable;
 
@@ -55,77 +61,76 @@ class Archiver extends \Piwik\Plugin\Archiver
 
     public function aggregateDayReport()
     {
-        $this->dataArray = new DataArray();
+        $this->paywallDataArray = new DataArray();
+        $this->articleDataArray = new DataArray();
+
 
         $settings = new \Piwik\Plugins\NewspaperReporting\Settings();
         $paywallCvarId = $settings->paywallId->getValue();
         $articleCvarId = $settings->articleId->getValue();
 
         $this->aggregatePaywallVariables($paywallCvarId, $articleCvarId);
+        $this->aggregateArticleVariables($articleCvarId);
 
-        $table = $this->dataArray->asDataTable();
+        $paywallTable = $this->paywallDataArray->asDataTable();
+        $articleTable = $this->articleDataArray->asDataTable();
 
-        $blob = $table->getSerialized(
+        $paywallBlob = $paywallTable->getSerialized(
+            $this->maximumRowsInDataTableLevelZero,
+            $this->maximumRowsInSubDataTable,
+            $columnToSort = Metrics::INDEX_NB_VISITS
+        );
+        $articleBlob = $articleTable->getSerialized(
             $this->maximumRowsInDataTableLevelZero,
             $this->maximumRowsInSubDataTable,
             $columnToSort = Metrics::INDEX_NB_VISITS
         );
 
-        $this->getProcessor()->insertBlobRecord(self::NEWSPAPERREPORTING_ARCHIVE_RECORD, $blob);
+        $this->getProcessor()->insertBlobRecord(self::NEWSPAPERREPORTING_PAYWALL_ARCHIVE_RECORD, $paywallBlob);
+        $this->getProcessor()->insertBlobRecord(self::NEWSPAPERREPORTING_ARTICLE_ARCHIVE_RECORD, $articleBlob);
     }
 
+    protected function aggregateArticleVariables($articleSlot)
+    {
+        $articleKeyField = "custom_var_k" . $articleSlot;
+        $articleValueField = "custom_var_v" . $articleSlot;
+        $articleWhere = "%s.$articleKeyField != ''";
+        $articleDimensions = array($articleKeyField, $articleValueField);
 
+        $articleQuery = $this->getLogAggregator()->queryActionsByDimension($articleDimensions, $articleWhere);
+        while ($articleRow = $articleQuery->fetch()) {
+            $articleKey = $articleRow[$articleKeyField];
+            $articleValue = $this->cleanCustomVarValue($articleRow[$articleValueField]);
+            $articleLabel = $articleKey." ".$articleValue;
+
+            $this->articleDataArray->sumMetricsActions($articleLabel, $articleRow);
+        }
+    }
 
     protected function aggregatePaywallVariables($paywallSlot, $articleSlot)
     {
         $paywallKeyField = "custom_var_k" . $paywallSlot;
         $paywallValueField = "custom_var_v" . $paywallSlot;
         $paywallWhere = "%s.$paywallKeyField != ''";
-        $paywallDimensions = array($paywallKeyField, $paywallValueField);
+        $paywallDimensions = array($paywallKeyField, $paywallValueField, 'idvisit');
 
         $articleKeyField = "custom_var_k" . $articleSlot;
         $articleValueField = "custom_var_v" . $articleSlot;
 
-
-
         $paywallQuery = $this->getLogAggregator()->queryVisitsByDimension($paywallDimensions, $paywallWhere);
-        $this->aggregateVisits($paywallQuery, $articleQuery, $paywallKeyField, $paywallValueField, $articleKeyField, $articleValueField);
-//        $paywallQuery = $this->getLogAggregator()->queryActionsByDimension($paywallDimensions, $paywallWhere);
-//        $this->aggregateActions($paywallQuery, $articleQuery, $paywallKeyField, $paywallValueField, $articleKeyField, $articleValueField);
+        $this->aggregateRows($paywallQuery, $paywallKeyField, $paywallValueField, $articleKeyField, $articleValueField);
     }
 
-    protected function aggregateVisits($paywallQuery, $articleQuery, $paywallKeyField, $paywallValueField, $articleKeyField, $articleValueField)
+    protected function aggregateRows($paywallQuery, $paywallKeyField, $paywallValueField, $articleKeyField, $articleValueField)
     {
         while ($paywallRow = $paywallQuery->fetch()) {
             $paywallKey = $paywallRow[$paywallKeyField];
             $paywallValue = $this->cleanCustomVarValue($paywallRow[$paywallValueField]);
             $paywallLabel = $paywallKey." ".$paywallValue;
 
-            $this->dataArray->sumMetricsVisits($paywallLabel, $paywallRow);
+            $this->paywallDataArray->sumMetricsVisits($paywallLabel, $paywallRow);
 
-            $articleWhere = "%s.{$paywallKeyField} != '' AND %s.{$paywallValueField} = {$paywallValue}";
-            $articleDimensions = array($articleKeyField, $articleValueField);
-            $articleQuery = $this->getLogAggregator()->queryVisitsByDimension($articleDimensions, $articleWhere);
-            while ($articleRow = $articleQuery->fetch()) {
-                $articleKey = $articleRow[$articleKeyField];
-                $articleValue = $this->cleanCustomVarValue($articleRow[$articleValueField]);
-                $articleLabel = $articleKey." ".$articleValue;
-
-                $this->dataArray->sumMetricsVisitsPivot($paywallLabel, $articleLabel, $articleRow);
-            }
-        }
-    }
-
-    protected function aggregateActions($paywallQuery, $articleQuery, $paywallKeyField, $paywallValueField, $articleKeyField, $articleValueField)
-    {
-        while ($paywallRow = $paywallQuery->fetch()) {
-            $paywallKey = $paywallRow[$paywallKeyField];
-            $paywallValue = $this->cleanCustomVarValue($paywallRow[$paywallValueField]);
-            $paywallLabel = $paywallKey." ".$paywallValue;
-
-            $this->dataArray->sumMetricsActions($paywallLabel, $paywallRow);
-
-            $articleWhere = "%s.{$paywallKeyField} != '' AND %s.{$paywallValueField} = {$paywallValue}";
+            $articleWhere = "%s.{$articleKeyField} != '' AND %s.idvisit = {$paywallRow['idvisit']}";
             $articleDimensions = array($articleKeyField, $articleValueField);
             $articleQuery = $this->getLogAggregator()->queryActionsByDimension($articleDimensions, $articleWhere);
             while ($articleRow = $articleQuery->fetch()) {
@@ -133,7 +138,7 @@ class Archiver extends \Piwik\Plugin\Archiver
                 $articleValue = $this->cleanCustomVarValue($articleRow[$articleValueField]);
                 $articleLabel = $articleKey." ".$articleValue;
 
-                $this->dataArray->sumMetricsActionsPivot($paywallLabel, $articleLabel, $articleRow);
+                $this->paywallDataArray->sumMetricsActionsPivot($paywallLabel, $articleLabel, $articleRow);
             }
         }
     }
