@@ -2,6 +2,10 @@
 
 {% block content %}
 
+    {% if (menu is defined and menu) %}
+        {% include "@CoreHome/_menu.twig" %}
+    {% endif %}
+
     {%  for row in rows %}
         {{ row.label }} - Visits: {{ row.nb_visits }} - Actions: {{ row.nb_actions }} <br>
     {% endfor %}

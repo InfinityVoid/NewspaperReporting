@@ -103,7 +103,7 @@ class Archiver extends \Piwik\Plugin\Archiver
             $articleValue = $this->cleanCustomVarValue($articleRow[$articleValueField]);
             $articleLabel = $articleKey." ".$articleValue;
 
-            $this->articleDataArray->sumMetricsActions($articleLabel, $articleRow);
+            $this->articleDataArray->sumMetricsActions($articleValue, $articleRow);
         }
     }
 
@@ -128,7 +128,7 @@ class Archiver extends \Piwik\Plugin\Archiver
             $paywallValue = $this->cleanCustomVarValue($paywallRow[$paywallValueField]);
             $paywallLabel = $paywallKey." ".$paywallValue;
 
-            $this->paywallDataArray->sumMetricsVisits($paywallLabel, $paywallRow);
+            $this->paywallDataArray->sumMetricsVisits($paywallValue, $paywallRow);
 
             $articleWhere = "%s.{$articleKeyField} != '' AND %s.idvisit = {$paywallRow['idvisit']}";
             $articleDimensions = array($articleKeyField, $articleValueField);
@@ -138,7 +138,7 @@ class Archiver extends \Piwik\Plugin\Archiver
                 $articleValue = $this->cleanCustomVarValue($articleRow[$articleValueField]);
                 $articleLabel = $articleKey." ".$articleValue;
 
-                $this->paywallDataArray->sumMetricsActionsPivot($paywallLabel, $articleLabel, $articleRow);
+                $this->paywallDataArray->sumMetricsActionsPivot($paywallValue, $articleValue, $articleRow);
             }
         }
     }

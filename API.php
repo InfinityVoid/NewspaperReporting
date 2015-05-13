@@ -1,13 +1,18 @@
 <?php
 /**
- * Piwik - free/libre analytics platform
+ * Copyright (C) Piwik PRO - All rights reserved.
  *
- * @link http://piwik.org
- * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
+ * Using this code requires that you first get a license from Piwik PRO.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
  *
+ * @link http://piwik.pro
  */
 namespace Piwik\Plugins\NewspaperReporting;
 
+use Piwik\DataTable\Row;
+
+use Piwik\Piwik;
+use Piwik\Date;
 use Piwik\DataTable;
 use Piwik\Archive;
 
@@ -23,6 +28,8 @@ class API extends \Piwik\Plugin\API
     {
         $dataTable = Archive::createDataTableFromArchive($name, $idSite, $period, $date, $segment, $expanded, $flat, $idSubtable);
         $dataTable->queueFilter('ColumnDelete', 'nb_uniq_visitors');
+        $dataTable->queueFilter('ColumnCallbackReplace', array('label', array($this, 'renameLabel'), array($name, $idSubtable)));
+
 
         if ($flat) {
             $dataTable->filterSubtables('Sort', array(Metrics::INDEX_NB_ACTIONS, 'desc', $naturalSort = false, $expanded));
@@ -30,6 +37,18 @@ class API extends \Piwik\Plugin\API
         }
 
         return $dataTable;
+    }
+
+    public function renameLabel($label, $labelType, $idSubtable)
+    {
+        if ($labelType === Archiver::NEWSPAPERREPORTING_ARTICLE_ARCHIVE_RECORD || $idSubtable) {
+            return sprintf(Piwik::translate('NewspaperReporting_NArticle'), $label);
+        }
+        if ($labelType === Archiver::NEWSPAPERREPORTING_PAYWALL_ARCHIVE_RECORD) {
+            return sprintf(Piwik::translate('NewspaperReporting_NPaywall'), $label);
+        }
+        return Piwik::translate('VisitHoursEvenOdd_UnknownError');
+
     }
 
     /**
@@ -42,10 +61,10 @@ class API extends \Piwik\Plugin\API
      */
     public function getNewspaperReport($idSite, $period, $date, $segment = false)
     {
+        Piwik::checkUserHasViewAccess($idSite);
         $flat = false;
         $expanded = false;
         $dataTable = $this->getDataTable(Archiver::NEWSPAPERREPORTING_PAYWALL_ARCHIVE_RECORD, $idSite, $period, $date, $segment, $expanded, $flat, $idSubtable = null);
-        $dataTable->applyQueuedFilters();
 
         return $dataTable;
     }
@@ -60,6 +79,7 @@ class API extends \Piwik\Plugin\API
      */
     public function getArticleReport($idSite, $period, $date, $segment = false)
     {
+        Piwik::checkUserHasViewAccess($idSite);
         $flat = false;
         $expanded = false;
         $dataTable = $this->getDataTable(Archiver::NEWSPAPERREPORTING_ARTICLE_ARCHIVE_RECORD, $idSite, $period, $date, $segment, $expanded, $flat, $idSubtable = null);
@@ -80,7 +100,7 @@ class API extends \Piwik\Plugin\API
      */
     public function getCustomVariablesValuesFromNameId($idSite, $period, $date, $idSubtable, $segment = false, $_leavePriceViewedColumn = false)
     {
-        $dataTable = $this->getDataTable($idSite, $period, $date, $segment, $expanded = false, $flat = false, $idSubtable);
+        $dataTable = $this->getDataTable(Archiver::NEWSPAPERREPORTING_PAYWALL_ARCHIVE_RECORD, $idSite, $period, $date, $segment, $expanded = false, $flat = false, $idSubtable);
 
         if (!$_leavePriceViewedColumn) {
             $dataTable->deleteColumn('price_viewed');
@@ -88,7 +108,7 @@ class API extends \Piwik\Plugin\API
             // Hack Ecommerce product price tracking to display correctly
             $dataTable->renameColumn('price_viewed', 'price');
         }
-        $dataTable->filter('Piwik\Plugins\CustomVariables\DataTable\Filter\CustomVariablesValuesFromNameId');
+        //$dataTable->filter('Piwik\Plugins\CustomVariables\DataTable\Filter\CustomVariablesValuesFromNameId');
 
         return $dataTable;
     }

@@ -19,20 +19,21 @@ use Piwik\View;
  *
  * See {@link http://developer.piwik.org/api-reference/Piwik/Plugin/Report} for more information.
  */
-class GetNewspaperReport extends Base
+class GetArticleReport extends Base
 {
     protected function init()
     {
         parent::init();
 
-        $this->name          = Piwik::translate('NewspaperReporting_NewspaperReport');
+        $this->name          = Piwik::translate('NewspaperReporting_ArticleReport');
         $this->dimension     = null;
-        $this->documentation = Piwik::translate('Articles visited by user by per Paywall');
-        $this->actionToLoadSubTables = 'getCustomVariablesValuesFromNameId';
+        $this->documentation = Piwik::translate('This report reports an article views per article.');
+
         // This defines in which order your report appears in the mobile app, in the menu and in the list of widgets
         $this->order = 1;
 
         // By default standard metrics are defined but you can customize them by defining an array of metric names
+        // $this->metrics       = array('nb_visits', 'nb_hits');
 
         // Uncomment the next line if your report does not contain any processed metrics, otherwise default
         // processed metrics will be assigned
@@ -49,11 +50,11 @@ class GetNewspaperReport extends Base
         // $this->constantRowsCount = true;
 
         // If a menu title is specified, the report will be displayed in the menu
-         $this->menuTitle    = 'NewspaperReporting_NewspaperReport';
+        $this->menuTitle    = 'NewspaperReporting_ArticleReport';
 
         // If a widget title is specified, the report will be displayed in the list of widgets and the report can be
         // exported as a widget
-         $this->widgetTitle  = 'NewspaperReporting_NewspaperReport';
+        $this->widgetTitle  = 'NewspaperReporting_ArticleReport';
     }
 
     /**
@@ -64,12 +65,13 @@ class GetNewspaperReport extends Base
      */
     public function configureView(ViewDataTable $view)
     {
+        $view->config->addTranslations(array('label' => 'Article'));
 
         // $view->config->show_search = false;
         // $view->requestConfig->filter_sort_column = 'nb_visits';
         // $view->requestConfig->filter_limit = 10';
-        $view->config->addTranslations(array('label' => 'Paywall'));
-        $view->config->columns_to_display = array('label', 'nb_actions', 'nb_visits');
+
+        $view->config->columns_to_display = array_merge(array('label'), 'nb_actions', 'nb_visits');
     }
 
     /**
@@ -92,7 +94,7 @@ class GetNewspaperReport extends Base
      * @return string
     public function render()
     {
-        $view = new View('@NewspaperReporting/getNewspaperReport');
+        $view = new View('@NewspaperReporting/getArticleReport');
         $view->myData = array();
 
         return $view->render();

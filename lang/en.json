@@ -1,5 +1,11 @@
 {
-    "NewspaperReporting": {
-        "NewspaperReport": "Newspaper Report"
+    "NewspaperReporting" : {
+        "NewspaperReport" : "Newspaper Report",
+        "Article" : "Article",
+        "ArticleReport" : "Article Report",
+        "ColumnArticlesId" : "Articles",
+        "Paywall" : "Paywall",
+        "NPaywall" : "Paywall Id = %s",
+        "NArticle" : "Article Id = %s"
     }
 }
