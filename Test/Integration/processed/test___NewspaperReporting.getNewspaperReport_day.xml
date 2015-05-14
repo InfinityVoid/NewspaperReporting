@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<result>
+	<row>
+		<label>Paywall Id = 1</label>
+		<nb_visits>1</nb_visits>
+		<nb_actions>5</nb_actions>
+		<nb_users>0</nb_users>
+		<max_actions>5</max_actions>
+		<sum_visit_length>1441</sum_visit_length>
+		<bounce_count>0</bounce_count>
+		<nb_visits_converted>0</nb_visits_converted>
+	</row>
+	<row>
+		<label>Paywall Id = 2</label>
+		<nb_visits>1</nb_visits>
+		<nb_actions>5</nb_actions>
+		<nb_users>0</nb_users>
+		<max_actions>5</max_actions>
+		<sum_visit_length>1441</sum_visit_length>
+		<bounce_count>0</bounce_count>
+		<nb_visits_converted>0</nb_visits_converted>
+	</row>
+	<row>
+		<label>Paywall Id = 3</label>
+		<nb_visits>1</nb_visits>
+		<nb_actions>5</nb_actions>
+		<nb_users>0</nb_users>
+		<max_actions>5</max_actions>
+		<sum_visit_length>1441</sum_visit_length>
+		<bounce_count>0</bounce_count>
+		<nb_visits_converted>0</nb_visits_converted>
+	</row>
+	<row>
+		<label>Paywall Id = 4</label>
+		<nb_visits>1</nb_visits>
+		<nb_actions>5</nb_actions>
+		<nb_users>0</nb_users>
+		<max_actions>5</max_actions>
+		<sum_visit_length>1441</sum_visit_length>
+		<bounce_count>0</bounce_count>
+		<nb_visits_converted>0</nb_visits_converted>
+	</row>
+</result>

@@ -28,27 +28,19 @@ class API extends \Piwik\Plugin\API
     {
         $dataTable = Archive::createDataTableFromArchive($name, $idSite, $period, $date, $segment, $expanded, $flat, $idSubtable);
         $dataTable->queueFilter('ColumnDelete', 'nb_uniq_visitors');
-        $dataTable->queueFilter('ColumnCallbackReplace', array('label', array($this, 'renameLabel'), array($name, $idSubtable)));
+        $dataTable->queueFilter('ColumnCallbackReplace', array( 'label', function ($label) use ($name, $idSubtable) {
 
-
-        if ($flat) {
-            $dataTable->filterSubtables('Sort', array(Metrics::INDEX_NB_ACTIONS, 'desc', $naturalSort = false, $expanded));
-            $dataTable->queueFilterSubtables('ColumnDelete', 'nb_uniq_visitors');
-        }
+            if ($name === Archiver::NEWSPAPERREPORTING_ARTICLE_ARCHIVE_RECORD || $idSubtable) {
+                return sprintf(Piwik::translate('NewspaperReporting_NArticle'), $label);
+            }
+            if ($name === Archiver::NEWSPAPERREPORTING_PAYWALL_ARCHIVE_RECORD) {
+                return sprintf(Piwik::translate('NewspaperReporting_NPaywall'), $label);
+            }
+            return Piwik::translate('VisitHoursEvenOdd_UnknownError');
+        }));
+        $dataTable->queueFilter('ReplaceColumnNames');
 
         return $dataTable;
-    }
-
-    public function renameLabel($label, $labelType, $idSubtable)
-    {
-        if ($labelType === Archiver::NEWSPAPERREPORTING_ARTICLE_ARCHIVE_RECORD || $idSubtable) {
-            return sprintf(Piwik::translate('NewspaperReporting_NArticle'), $label);
-        }
-        if ($labelType === Archiver::NEWSPAPERREPORTING_PAYWALL_ARCHIVE_RECORD) {
-            return sprintf(Piwik::translate('NewspaperReporting_NPaywall'), $label);
-        }
-        return Piwik::translate('VisitHoursEvenOdd_UnknownError');
-
     }
 
     /**
@@ -62,9 +54,8 @@ class API extends \Piwik\Plugin\API
     public function getNewspaperReport($idSite, $period, $date, $segment = false)
     {
         Piwik::checkUserHasViewAccess($idSite);
-        $flat = false;
-        $expanded = false;
-        $dataTable = $this->getDataTable(Archiver::NEWSPAPERREPORTING_PAYWALL_ARCHIVE_RECORD, $idSite, $period, $date, $segment, $expanded, $flat, $idSubtable = null);
+        $dataTable = $this->getDataTable(Archiver::NEWSPAPERREPORTING_PAYWALL_ARCHIVE_RECORD, $idSite, $period, $date, $segment);
+        $dataTable->applyQueuedFilters();
 
         return $dataTable;
     }
@@ -80,9 +71,7 @@ class API extends \Piwik\Plugin\API
     public function getArticleReport($idSite, $period, $date, $segment = false)
     {
         Piwik::checkUserHasViewAccess($idSite);
-        $flat = false;
-        $expanded = false;
-        $dataTable = $this->getDataTable(Archiver::NEWSPAPERREPORTING_ARTICLE_ARCHIVE_RECORD, $idSite, $period, $date, $segment, $expanded, $flat, $idSubtable = null);
+        $dataTable = $this->getDataTable(Archiver::NEWSPAPERREPORTING_ARTICLE_ARCHIVE_RECORD, $idSite, $period, $date, $segment, $expanded = false, $flat = false, $idSubtable = null);
         $dataTable->applyQueuedFilters();
 
         return $dataTable;

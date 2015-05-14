@@ -38,6 +38,7 @@ class Controller extends \Piwik\Plugin\Controller
             Common::getRequestVar('date'),
             Common::getRequestVar('segment', false)
         );
+        $dataTable->applyQueuedFilters();
 
         $view = new View("@NewspaperReporting/articleReport.twig");
         $this->setGeneralVariablesView($view);
@@ -56,6 +57,7 @@ class Controller extends \Piwik\Plugin\Controller
             Common::getRequestVar('date'),
             Common::getRequestVar('segment', false)
         );
+        $dataTable->applyQueuedFilters();
 
         $view = new View("@NewspaperReporting/paywallReport.twig");
         $this->setGeneralVariablesView($view);

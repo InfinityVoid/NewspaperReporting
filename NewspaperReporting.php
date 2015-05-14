@@ -46,4 +46,9 @@ class NewspaperReporting extends \Piwik\Plugin
         }
         return $valuesToUpdate;
     }
+
+    public function processAction()
+    {
+
+    }
 }
