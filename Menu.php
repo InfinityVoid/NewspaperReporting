@@ -20,31 +20,6 @@ use Piwik\Menu\MenuUser;
  */
 class Menu extends \Piwik\Plugin\Menu
 {
-    public function configureReportingMenu(MenuReporting $menu)
-    {
-        // reuse an existing category. Execute the showList() method within the controller when menu item was clicked
-        // $menu->addVisitorsItem('Report 1', $this->urlForAction('showList'), $orderId = 30);
-        // $menu->addActionsItem('Report 1', $this->urlForAction('showList'), $orderId = 30);
-
-        // or create a custom category 'UI Framework'
-        // $menu->addItem('UI Framework', '', $this->urlForDefaultAction(), $orderId = 30);
-        // $menu->addItem('UI Framework', 'Report 1', $this->urlForAction('showList'), $orderId = 30);
-    }
-
-    public function configureAdminMenu(MenuAdmin $menu)
-    {
-        // reuse an existing category
-        // $menu->addSettingsItem('My Admin Item', $this->urlForDefaultAction(), $orderId = 30);
-        // $menu->addPlatformItem('My Admin Item', $this->urlForDefaultAction(), $orderId = 30);
-
-        // or create a custom category
-        // $menu->addItem('General_Settings', 'My Admin Item', $this->urlForDefaultAction(), $orderId = 30);
-    }
-
-    public function configureTopMenu(MenuTop $menu)
-    {
-        // $menu->addItem('My Top Item', null, $this->urlForDefaultAction(), $orderId = 30);
-    }
 
     public function configureUserMenu(MenuUser $menu)
     {
@@ -52,9 +27,5 @@ class Menu extends \Piwik\Plugin\Menu
         $menu->addItem('NewspaperReporting', 'index', $this->urlForAction('index'), $orderId = 1);
         $menu->addItem('NewspaperReporting', 'Paywall Report', $this->urlForAction('paywallReport'), $orderId = 2);
         $menu->addItem('NewspaperReporting', 'Article Report', $this->urlForAction('articleReport'), $orderId = 3);
-
-
-        // or create a custom category
-        // $menu->addItem('CoreAdminHome_MenuManage', 'My User Item', $this->urlForDefaultAction(), $orderId = 30);
     }
 }

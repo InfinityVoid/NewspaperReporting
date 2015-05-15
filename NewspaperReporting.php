@@ -30,7 +30,7 @@ class NewspaperReporting extends \Piwik\Plugin
 
     public function processExistingVisitInformation(&$valuesToUpdate, $visitorInfo)
     {
-//        $valuesToUpdate = $this->processUrlVars($valuesToUpdate);
+        $valuesToUpdate = $this->processUrlVars($valuesToUpdate);
     }
 
     private function processUrlVars($valuesToUpdate)

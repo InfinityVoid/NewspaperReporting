@@ -74,5 +74,4 @@ class NewspaperReportingApiTest extends IntegrationTestCase
         return dirname(__FILE__);
     }
 }
-
 NewspaperReportingApiTest::$fixture = new NewspaperReportingFixture();

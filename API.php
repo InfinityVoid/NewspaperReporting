@@ -54,7 +54,7 @@ class API extends \Piwik\Plugin\API
     public function getNewspaperReport($idSite, $period, $date, $segment = false)
     {
         Piwik::checkUserHasViewAccess($idSite);
-        $dataTable = $this->getDataTable(Archiver::NEWSPAPERREPORTING_PAYWALL_ARCHIVE_RECORD, $idSite, $period, $date, $segment);
+        $dataTable = $this->getDataTable(Archiver::NEWSPAPERREPORTING_PAYWALL_ARCHIVE_RECORD, $idSite, $period, $date, $segment, $expanded = false, $flat = false, $idSubtable = null);
         $dataTable->applyQueuedFilters();
 
         return $dataTable;
@@ -87,17 +87,9 @@ class API extends \Piwik\Plugin\API
      *
      * @return DataTable|DataTable\Map
      */
-    public function getCustomVariablesValuesFromNameId($idSite, $period, $date, $idSubtable, $segment = false, $_leavePriceViewedColumn = false)
+    public function getCustomVariablesValuesFromNameId($idSite, $period, $date, $idSubtable, $segment = false)
     {
         $dataTable = $this->getDataTable(Archiver::NEWSPAPERREPORTING_PAYWALL_ARCHIVE_RECORD, $idSite, $period, $date, $segment, $expanded = false, $flat = false, $idSubtable);
-
-        if (!$_leavePriceViewedColumn) {
-            $dataTable->deleteColumn('price_viewed');
-        } else {
-            // Hack Ecommerce product price tracking to display correctly
-            $dataTable->renameColumn('price_viewed', 'price');
-        }
-        //$dataTable->filter('Piwik\Plugins\CustomVariables\DataTable\Filter\CustomVariablesValuesFromNameId');
 
         return $dataTable;
     }

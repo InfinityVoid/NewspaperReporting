@@ -38,6 +38,7 @@ class Archiver extends \Piwik\Plugin\Archiver
      */
     const NEWSPAPERREPORTING_PAYWALL_ARCHIVE_RECORD = "NewspaperReporting_paywall_archive_record";
     const NEWSPAPERREPORTING_ARTICLE_ARCHIVE_RECORD = "NewspaperReporting_article_archive_record";
+    const LABEL_CUSTOM_VALUE_NOT_DEFINED = "NewspaperReporting_value_not_defined";
 
     /**
      * @var DataArray
@@ -99,9 +100,7 @@ class Archiver extends \Piwik\Plugin\Archiver
 
         $articleQuery = $this->getLogAggregator()->queryActionsByDimension($articleDimensions, $articleWhere);
         while ($articleRow = $articleQuery->fetch()) {
-            $articleKey = $articleRow[$articleKeyField];
             $articleValue = $this->cleanCustomVarValue($articleRow[$articleValueField]);
-            $articleLabel = $articleKey." ".$articleValue;
 
             $this->articleDataArray->sumMetricsActions($articleValue, $articleRow);
         }
@@ -118,15 +117,8 @@ class Archiver extends \Piwik\Plugin\Archiver
         $articleValueField = "custom_var_v" . $articleSlot;
 
         $paywallQuery = $this->getLogAggregator()->queryVisitsByDimension($paywallDimensions, $paywallWhere);
-        $this->aggregateRows($paywallQuery, $paywallKeyField, $paywallValueField, $articleKeyField, $articleValueField);
-    }
-
-    protected function aggregateRows($paywallQuery, $paywallKeyField, $paywallValueField, $articleKeyField, $articleValueField)
-    {
         while ($paywallRow = $paywallQuery->fetch()) {
-            $paywallKey = $paywallRow[$paywallKeyField];
             $paywallValue = $this->cleanCustomVarValue($paywallRow[$paywallValueField]);
-            $paywallLabel = $paywallKey." ".$paywallValue;
 
             $this->paywallDataArray->sumMetricsVisits($paywallValue, $paywallRow);
 
@@ -134,9 +126,7 @@ class Archiver extends \Piwik\Plugin\Archiver
             $articleDimensions = array($articleKeyField, $articleValueField);
             $articleQuery = $this->getLogAggregator()->queryActionsByDimension($articleDimensions, $articleWhere);
             while ($articleRow = $articleQuery->fetch()) {
-                $articleKey = $articleRow[$articleKeyField];
                 $articleValue = $this->cleanCustomVarValue($articleRow[$articleValueField]);
-                $articleLabel = $articleKey." ".$articleValue;
 
                 $this->paywallDataArray->sumMetricsActionsPivot($paywallValue, $articleValue, $articleRow);
             }
@@ -156,7 +146,7 @@ class Archiver extends \Piwik\Plugin\Archiver
         $columnsAggregationOperation = null;
 
         $this->getProcessor()->aggregateDataTableRecords(
-            self::NEWSPAPERREPORTING_ARCHIVE_RECORD,
+            array(self::NEWSPAPERREPORTING_PAYWALL_ARCHIVE_RECORD, self::NEWSPAPERREPORTING_ARTICLE_ARCHIVE_RECORD),
             $this->maximumRowsInDataTableLevelZero,
             $this->maximumRowsInSubDataTable,
             $columnToSort = Metrics::INDEX_NB_VISITS,
